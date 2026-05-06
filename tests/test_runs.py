@@ -13,82 +13,86 @@ def _mock_run(return_value):
     return patch("epik_gh.runs.run_gh", return_value=(True, return_value, ""))
 
 
-class TestRunList:
-    def test_happy_path(self):
-        items = [
-            {
-                "databaseId": 1,
-                "name": "CI",
-                "status": "completed",
-                "conclusion": "success",
-            }
-        ]
-        with _mock_run(items):
-            result = run_list(REPO)
-        assert result == items
-
-    def test_passes_workflow_filter(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
-            run_list(REPO, workflow="ci.yml")
-        args = mock.call_args[0]
-        assert "--workflow" in args
-        assert "ci.yml" in args
-
-    def test_passes_branch_filter(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
-            run_list(REPO, branch="main")
-        args = mock.call_args[0]
-        assert "--branch" in args
-        assert "main" in args
-
-    def test_passes_status_filter(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
-            run_list(REPO, status="failure")
-        args = mock.call_args[0]
-        assert "--status" in args
-        assert "failure" in args
-
-    def test_passes_limit(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
-            run_list(REPO, limit=5)
-        args = mock.call_args[0]
-        assert "5" in args
+def test_run_list_happy_path():
+    items = [
+        {
+            "databaseId": 1,
+            "name": "CI",
+            "status": "completed",
+            "conclusion": "success",
+        }
+    ]
+    with _mock_run(items):
+        result = run_list(REPO)
+    assert result == items
 
 
-class TestRunGet:
-    def test_happy_path(self):
-        run = {"databaseId": 99, "name": "CI", "status": "completed"}
-        with _mock_run(run):
-            result = run_get(REPO, 99)
-        assert result == run
-
-    def test_passes_run_id(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, {}, "")) as mock:
-            run_get(REPO, 12345)
-        args = mock.call_args[0]
-        assert "12345" in args
+def test_run_list_passes_workflow_filter():
+    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+        run_list(REPO, workflow="ci.yml")
+    args = mock.call_args[0]
+    assert "--workflow" in args
+    assert "ci.yml" in args
 
 
-class TestRunLogs:
-    def test_full_logs(self):
-        with _mock_run("Step 1\nStep 2\nSuccess"):
-            result = run_logs(REPO, 42)
-        assert "Step 1" in result
+def test_run_list_passes_branch_filter():
+    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+        run_list(REPO, branch="main")
+    args = mock.call_args[0]
+    assert "--branch" in args
+    assert "main" in args
 
-    def test_failed_only_logs(self):
-        with patch(
-            "epik_gh.runs.run_gh", return_value=(True, "Error in step 3", "")
-        ) as mock:
-            run_logs(REPO, 42, failed_only=True)
-        args = mock.call_args[0]
-        assert "--log-failed" in args
 
-    def test_job_specific_logs(self):
-        with patch(
-            "epik_gh.runs.run_gh", return_value=(True, "job output", "")
-        ) as mock:
-            run_logs(REPO, 42, job_id=7)
-        args = mock.call_args[0]
-        assert "--job" in args
-        assert "7" in args
-        assert "--log" in args
+def test_run_list_passes_status_filter():
+    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+        run_list(REPO, status="failure")
+    args = mock.call_args[0]
+    assert "--status" in args
+    assert "failure" in args
+
+
+def test_run_list_passes_limit():
+    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+        run_list(REPO, limit=5)
+    args = mock.call_args[0]
+    assert "5" in args
+
+
+def test_run_get_happy_path():
+    run = {"databaseId": 99, "name": "CI", "status": "completed"}
+    with _mock_run(run):
+        result = run_get(REPO, 99)
+    assert result == run
+
+
+def test_run_get_passes_run_id():
+    with patch("epik_gh.runs.run_gh", return_value=(True, {}, "")) as mock:
+        run_get(REPO, 12345)
+    args = mock.call_args[0]
+    assert "12345" in args
+
+
+def test_run_logs_full_logs():
+    with _mock_run("Step 1\nStep 2\nSuccess"):
+        result = run_logs(REPO, 42)
+    assert "Step 1" in result
+
+
+def test_run_logs_failed_only():
+    with patch(
+        "epik_gh.runs.run_gh", return_value=(True, "Error in step 3", "")
+    ) as mock:
+        run_logs(REPO, 42, failed_only=True)
+    args = mock.call_args[0]
+    assert "--log-failed" in args
+
+
+def test_run_logs_job_specific():
+    with patch(
+        "epik_gh.runs.run_gh", return_value=(True, "job output", "")
+    ) as mock:
+        run_logs(REPO, 42, job_id=7)
+    args = mock.call_args[0]
+    assert "--job" in args
+    assert "7" in args
+    assert "--log" in args
