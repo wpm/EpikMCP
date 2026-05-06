@@ -1,7 +1,10 @@
 """Issue tools for epik-gh."""
+
 from __future__ import annotations
 
 from typing import Any
+
+from mcp.server.fastmcp import FastMCP
 
 from .errors import ValidationError
 from .runner import run_gh
@@ -47,7 +50,9 @@ def issue_list(
         args.extend(["--label", labels])
     if assignee:
         args.extend(["--assignee", assignee])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "state", "labels", "assignees", "url"])
+    _, data, _ = run_gh(
+        *args, json_fields=["number", "title", "state", "labels", "assignees", "url"]
+    )
     return data  # type: ignore[return-value]
 
 
@@ -62,7 +67,11 @@ def issue_get(repo: str, issue_number: int) -> dict[str, Any]:
         Issue object with full details.
     """
     _, data, _ = run_gh(
-        "issue", "view", str(issue_number), "--repo", repo,
+        "issue",
+        "view",
+        str(issue_number),
+        "--repo",
+        repo,
         json_fields=_ISSUE_FIELDS,
     )
     return data  # type: ignore[return-value]
@@ -140,7 +149,9 @@ def issue_edit(
     return data  # type: ignore[return-value]
 
 
-def issue_close(repo: str, issue_number: int, comment: str | None = None) -> dict[str, Any]:
+def issue_close(
+    repo: str, issue_number: int, comment: str | None = None
+) -> dict[str, Any]:
     """Close an open issue.
 
     Args:
@@ -158,7 +169,9 @@ def issue_close(repo: str, issue_number: int, comment: str | None = None) -> dic
     return data  # type: ignore[return-value]
 
 
-def issue_reopen(repo: str, issue_number: int, comment: str | None = None) -> dict[str, Any]:
+def issue_reopen(
+    repo: str, issue_number: int, comment: str | None = None
+) -> dict[str, Any]:
     """Reopen a closed issue.
 
     Args:
@@ -190,13 +203,19 @@ def issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
     if not body:
         raise ValidationError("body is required")
     _, data, _ = run_gh(
-        "issue", "comment", str(issue_number), "--repo", repo, "--body", body,
+        "issue",
+        "comment",
+        str(issue_number),
+        "--repo",
+        repo,
+        "--body",
+        body,
         json_fields=["url"],
     )
     return data  # type: ignore[return-value]
 
 
-def register(server: Any) -> None:
+def register(server: FastMCP) -> None:
     """Register all issue tools with the MCP server."""
 
     @server.tool()
@@ -216,7 +235,9 @@ def register(server: Any) -> None:
             assignee: Filter by assignee login.
             limit: Maximum number of issues to return (default 30).
         """
-        return issue_list(repo, state=state, labels=labels, assignee=assignee, limit=limit)
+        return issue_list(
+            repo, state=state, labels=labels, assignee=assignee, limit=limit
+        )
 
     tool_issue_list.__name__ = "issue_list"
 
@@ -251,7 +272,14 @@ def register(server: Any) -> None:
             assignees: Comma-separated GitHub logins to assign.
             milestone: Milestone title or number to associate.
         """
-        return issue_create(repo, title, body=body, labels=labels, assignees=assignees, milestone=milestone)
+        return issue_create(
+            repo,
+            title,
+            body=body,
+            labels=labels,
+            assignees=assignees,
+            milestone=milestone,
+        )
 
     tool_issue_create.__name__ = "issue_create"
 
@@ -276,12 +304,22 @@ def register(server: Any) -> None:
             assignees: Comma-separated logins to set as assignees.
             milestone: Milestone title or number to set.
         """
-        return issue_edit(repo, issue_number, title=title, body=body, labels=labels, assignees=assignees, milestone=milestone)
+        return issue_edit(
+            repo,
+            issue_number,
+            title=title,
+            body=body,
+            labels=labels,
+            assignees=assignees,
+            milestone=milestone,
+        )
 
     tool_issue_edit.__name__ = "issue_edit"
 
     @server.tool()
-    def tool_issue_close(repo: str, issue_number: int, comment: str | None = None) -> dict[str, Any]:
+    def tool_issue_close(
+        repo: str, issue_number: int, comment: str | None = None
+    ) -> dict[str, Any]:
         """Close an open issue.
 
         Args:
@@ -294,7 +332,9 @@ def register(server: Any) -> None:
     tool_issue_close.__name__ = "issue_close"
 
     @server.tool()
-    def tool_issue_reopen(repo: str, issue_number: int, comment: str | None = None) -> dict[str, Any]:
+    def tool_issue_reopen(
+        repo: str, issue_number: int, comment: str | None = None
+    ) -> dict[str, Any]:
         """Reopen a closed issue.
 
         Args:

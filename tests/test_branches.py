@@ -1,12 +1,14 @@
 """Unit tests for branches.py."""
+
 from __future__ import annotations
 
 import json
-import pytest
-from unittest.mock import call, patch
+from unittest.mock import patch
 
-from epik_gh.errors import ValidationError
+import pytest
+
 from epik_gh.branches import branch_create, branch_delete, branch_list
+from epik_gh.errors import ValidationError
 
 REPO = "owner/repo"
 
@@ -17,21 +19,25 @@ def _mock_run(return_value):
 
 class TestBranchList:
     def test_happy_path(self):
-        api_response = json.dumps([
-            {"name": "main", "commit": {"sha": "abc123"}},
-            {"name": "dev", "commit": {"sha": "def456"}},
-        ])
+        api_response = json.dumps(
+            [
+                {"name": "main", "commit": {"sha": "abc123"}},
+                {"name": "dev", "commit": {"sha": "def456"}},
+            ]
+        )
         with _mock_run(api_response):
             result = branch_list(REPO)
         assert len(result) == 2
         assert result[0] == {"name": "main", "sha": "abc123"}
 
     def test_prefix_filter(self):
-        api_response = json.dumps([
-            {"name": "feature/foo", "commit": {"sha": "aaa"}},
-            {"name": "main", "commit": {"sha": "bbb"}},
-            {"name": "feature/bar", "commit": {"sha": "ccc"}},
-        ])
+        api_response = json.dumps(
+            [
+                {"name": "feature/foo", "commit": {"sha": "aaa"}},
+                {"name": "main", "commit": {"sha": "bbb"}},
+                {"name": "feature/bar", "commit": {"sha": "ccc"}},
+            ]
+        )
         with _mock_run(api_response):
             result = branch_list(REPO, prefix="feature/")
         assert len(result) == 2
@@ -50,8 +56,8 @@ class TestBranchCreate:
         create_response = json.dumps({"ref": "refs/heads/new-branch", "sha": sha})
 
         side_effects = [
-            (True, resolve_response, ""),   # _resolve_ref call
-            (True, create_response, ""),    # POST to create ref
+            (True, resolve_response, ""),  # _resolve_ref call
+            (True, create_response, ""),  # POST to create ref
         ]
 
         with patch("epik_gh.branches.run_gh", side_effect=side_effects):

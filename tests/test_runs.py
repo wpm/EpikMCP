@@ -1,4 +1,5 @@
 """Unit tests for runs.py."""
+
 from __future__ import annotations
 
 from unittest.mock import patch
@@ -15,7 +16,12 @@ def _mock_run(return_value):
 class TestRunList:
     def test_happy_path(self):
         items = [
-            {"databaseId": 1, "name": "CI", "status": "completed", "conclusion": "success"}
+            {
+                "databaseId": 1,
+                "name": "CI",
+                "status": "completed",
+                "conclusion": "success",
+            }
         ]
         with _mock_run(items):
             result = run_list(REPO)
@@ -70,14 +76,18 @@ class TestRunLogs:
         assert "Step 1" in result
 
     def test_failed_only_logs(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, "Error in step 3", "")) as mock:
-            result = run_logs(REPO, 42, failed_only=True)
+        with patch(
+            "epik_gh.runs.run_gh", return_value=(True, "Error in step 3", "")
+        ) as mock:
+            run_logs(REPO, 42, failed_only=True)
         args = mock.call_args[0]
         assert "--log-failed" in args
 
     def test_job_specific_logs(self):
-        with patch("epik_gh.runs.run_gh", return_value=(True, "job output", "")) as mock:
-            result = run_logs(REPO, 42, job_id=7)
+        with patch(
+            "epik_gh.runs.run_gh", return_value=(True, "job output", "")
+        ) as mock:
+            run_logs(REPO, 42, job_id=7)
         args = mock.call_args[0]
         assert "--job" in args
         assert "7" in args

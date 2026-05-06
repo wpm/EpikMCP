@@ -1,8 +1,10 @@
 """Unit tests for labels.py."""
+
 from __future__ import annotations
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from epik_gh.errors import ValidationError
 from epik_gh.labels import label_create, label_delete, label_list
@@ -16,7 +18,9 @@ def _mock_run(return_value):
 
 class TestLabelList:
     def test_happy_path(self):
-        items = [{"name": "bug", "color": "d73a4a", "description": "Something is broken"}]
+        items = [
+            {"name": "bug", "color": "d73a4a", "description": "Something is broken"}
+        ]
         with _mock_run(items):
             result = label_list(REPO)
         assert result == items

@@ -2,6 +2,7 @@
 
 This is the only module that knows about subprocesses. Every tool calls into it.
 """
+
 from __future__ import annotations
 
 import json
@@ -56,14 +57,16 @@ def run_gh(
             capture_output=True,
             timeout=60,
         )
-    except FileNotFoundError:
+    except FileNotFoundError as err:
         raise GhError(
             "gh CLI not found. Install it from https://cli.github.com/",
             stderr="",
             exit_code=-1,
-        )
-    except subprocess.TimeoutExpired:
-        raise GhError("gh command timed out after 60 seconds", stderr="", exit_code=-1)
+        ) from err
+    except subprocess.TimeoutExpired as err:
+        raise GhError(
+            "gh command timed out after 60 seconds", stderr="", exit_code=-1
+        ) from err
 
     stdout = result.stdout.decode(errors="replace").strip()
     stderr = result.stderr.decode(errors="replace").strip()
@@ -78,7 +81,7 @@ def run_gh(
                     f"Failed to parse gh JSON output: {exc}",
                     stderr=stderr,
                     exit_code=exit_code,
-                )
+                ) from exc
         else:
             data = stdout
         return True, data, ""
@@ -100,15 +103,12 @@ def run_gh(
         raise RateLimitError()
 
     # Not found / permission denied
-    if (
-        exit_code == 1
-        and (
-            "not found" in stderr_lower
-            or "could not resolve" in stderr_lower
-            or "404" in stderr
-            or "no such" in stderr_lower
-            or "does not exist" in stderr_lower
-        )
+    if exit_code == 1 and (
+        "not found" in stderr_lower
+        or "could not resolve" in stderr_lower
+        or "404" in stderr
+        or "no such" in stderr_lower
+        or "does not exist" in stderr_lower
     ):
         raise NotFoundError(stderr or f"Resource not found (exit {exit_code})")
 

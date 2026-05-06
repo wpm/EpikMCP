@@ -5,19 +5,22 @@ The lookup chain (project node ID → field ID → option ID) is hidden
 from callers — project_set_status(owner, number, issue_number, status)
 is a single call. Stable IDs are cached in ~/.epik-gh/cache.json.
 """
+
 from __future__ import annotations
 
 import json
 from typing import Any
 
+from mcp.server.fastmcp import FastMCP
+
 from . import cache as _cache
 from .errors import NotFoundError, ValidationError
 from .runner import run_gh, split_repo
 
-
 # ---------------------------------------------------------------------------
 # Internal GraphQL helpers
 # ---------------------------------------------------------------------------
+
 
 def _gql(query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
     """Execute a GraphQL query/mutation and return the 'data' portion."""
@@ -87,8 +90,7 @@ def _fetch_project_ids(project_owner: str, project_number: int) -> dict[str, Any
         fname: str = node.get("name", "")
         fid: str = node.get("id", "")
         options: dict[str, str] = {
-            opt["name"]: opt["id"]
-            for opt in node.get("options", [])
+            opt["name"]: opt["id"] for opt in node.get("options", [])
         }
         if fname:
             fields[fname] = {"id": fid, "options": options}
@@ -138,11 +140,10 @@ def _find_item_id(project_id: str, repo: str, issue_number: int) -> str | None:
         items_data = data.get("node", {}).get("items", {})
         for node in items_data.get("nodes", []):
             content = node.get("content") or {}
-            repo_name = (content.get("repository") or {}).get("nameWithOwner", "").lower()
-            if (
-                content.get("number") == issue_number
-                and repo_name == owner_repo
-            ):
+            repo_name = (
+                (content.get("repository") or {}).get("nameWithOwner", "").lower()
+            )
+            if content.get("number") == issue_number and repo_name == owner_repo:
                 return str(node["id"])
         page_info = items_data.get("pageInfo", {})
         if not page_info.get("hasNextPage"):
@@ -184,6 +185,7 @@ def _add_item_to_project(project_id: str, repo: str, issue_number: int) -> str:
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def project_set_status(
     project_owner: str,
     project_number: int,
@@ -222,8 +224,9 @@ def project_set_status(
     options: dict[str, str] = status_field.get("options", {})
     option_id = options.get(status_name)
     if not option_id:
+        available = list(options.keys())
         raise ValidationError(
-            f"Status {status_name!r} not found. Available statuses: {list(options.keys())}"
+            f"Status {status_name!r} not found. Available statuses: {available}"
         )
 
     # Get or create item
@@ -244,12 +247,15 @@ def project_set_status(
       }
     }
     """
-    _gql(mutation, {
-        "projectId": project_id,
-        "itemId": item_id,
-        "fieldId": field_id,
-        "optionId": option_id,
-    })
+    _gql(
+        mutation,
+        {
+            "projectId": project_id,
+            "itemId": item_id,
+            "fieldId": field_id,
+            "optionId": option_id,
+        },
+    )
 
     return {
         "project_owner": project_owner,
@@ -431,7 +437,7 @@ def project_invalidate_cache(
     return {"invalidated": "all"}
 
 
-def register(server: Any) -> None:
+def register(server: FastMCP) -> None:
     """Register all Projects V2 tools with the MCP server."""
 
     @server.tool()
@@ -454,7 +460,9 @@ def register(server: Any) -> None:
             issue_number: The issue number to update.
             status_name: The status column name (e.g. 'In Progress', 'Done').
         """
-        return project_set_status(project_owner, project_number, repo, issue_number, status_name)
+        return project_set_status(
+            project_owner, project_number, repo, issue_number, status_name
+        )
 
     tool_project_set_status.__name__ = "project_set_status"
 
@@ -490,7 +498,9 @@ def register(server: Any) -> None:
             project_number: The project number.
             status_filter: If provided, only return items with this status name.
         """
-        return project_list_items(project_owner, project_number, status_filter=status_filter)
+        return project_list_items(
+            project_owner, project_number, status_filter=status_filter
+        )
 
     tool_project_list_items.__name__ = "project_list_items"
 

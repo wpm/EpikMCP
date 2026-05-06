@@ -1,12 +1,12 @@
 """Unit tests for projects.py."""
+
 from __future__ import annotations
 
-import json
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import NotFoundError, ValidationError
+from epik_gh.errors import ValidationError
 from epik_gh.projects import (
     project_get_item,
     project_invalidate_cache,
@@ -40,9 +40,18 @@ class TestProjectSetStatus:
         with (
             patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
             patch("epik_gh.projects._find_item_id", return_value="PVTI_item789"),
-            patch("epik_gh.projects._gql", return_value={"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "PVTI_item789"}}}),
+            patch(
+                "epik_gh.projects._gql",
+                return_value={
+                    "updateProjectV2ItemFieldValue": {
+                        "projectV2Item": {"id": "PVTI_item789"}
+                    }
+                },
+            ),
         ):
-            result = project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "In Progress")
+            result = project_set_status(
+                OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "In Progress"
+            )
 
         assert result["status"] == "In Progress"
         assert result["issue_number"] == ISSUE_NUMBER
@@ -55,16 +64,20 @@ class TestProjectSetStatus:
             patch("epik_gh.projects._add_item_to_project", return_value="PVTI_newitem"),
             patch("epik_gh.projects._gql", return_value={}),
         ):
-            result = project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo")
+            result = project_set_status(
+                OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo"
+            )
 
         assert result["item_id"] == "PVTI_newitem"
 
     def test_invalid_status_raises_validation_error(self):
         with (
             patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+            pytest.raises(ValidationError, match="not found"),
         ):
-            with pytest.raises(ValidationError, match="not found"):
-                project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Nonexistent Status")
+            project_set_status(
+                OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Nonexistent Status"
+            )
 
     def test_missing_status_field_raises_validation_error(self):
         ids_without_status = {
@@ -73,9 +86,9 @@ class TestProjectSetStatus:
         }
         with (
             patch("epik_gh.projects._get_project_ids", return_value=ids_without_status),
+            pytest.raises(ValidationError, match="Status"),
         ):
-            with pytest.raises(ValidationError, match="Status"):
-                project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo")
+            project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo")
 
 
 class TestProjectGetItem:
@@ -83,16 +96,19 @@ class TestProjectGetItem:
         with (
             patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
             patch("epik_gh.projects._find_item_id", return_value="PVTI_item789"),
-            patch("epik_gh.projects._gql", return_value={
-                "node": {
-                    "id": "PVTI_item789",
-                    "fieldValues": {
-                        "nodes": [
-                            {"name": "In Progress", "field": {"name": "Status"}}
-                        ]
+            patch(
+                "epik_gh.projects._gql",
+                return_value={
+                    "node": {
+                        "id": "PVTI_item789",
+                        "fieldValues": {
+                            "nodes": [
+                                {"name": "In Progress", "field": {"name": "Status"}}
+                            ]
+                        },
                     }
-                }
-            }),
+                },
+            ),
         ):
             result = project_get_item(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER)
 
@@ -158,7 +174,9 @@ class TestProjectListItems:
                                 "url": "https://...",
                                 "repository": {"nameWithOwner": "owner/repo"},
                             },
-                            "fieldValues": {"nodes": [{"name": "Todo", "field": {"name": "Status"}}]},
+                            "fieldValues": {
+                                "nodes": [{"name": "Todo", "field": {"name": "Status"}}]
+                            },
                         },
                         {
                             "id": "PVTI_2",
@@ -168,7 +186,9 @@ class TestProjectListItems:
                                 "url": "https://...",
                                 "repository": {"nameWithOwner": "owner/repo"},
                             },
-                            "fieldValues": {"nodes": [{"name": "Done", "field": {"name": "Status"}}]},
+                            "fieldValues": {
+                                "nodes": [{"name": "Done", "field": {"name": "Status"}}]
+                            },
                         },
                     ],
                 }

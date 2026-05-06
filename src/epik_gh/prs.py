@@ -1,7 +1,10 @@
 """Pull request tools for epik-gh."""
+
 from __future__ import annotations
 
 from typing import Any
+
+from mcp.server.fastmcp import FastMCP
 
 from .errors import ValidationError
 from .runner import run_gh
@@ -73,7 +76,11 @@ def pr_get(repo: str, pr_number: int) -> dict[str, Any]:
         Pull request object with full details.
     """
     _, data, _ = run_gh(
-        "pr", "view", str(pr_number), "--repo", repo,
+        "pr",
+        "view",
+        str(pr_number),
+        "--repo",
+        repo,
         json_fields=_PR_FIELDS,
     )
     return data  # type: ignore[return-value]
@@ -197,7 +204,9 @@ def pr_merge(
         The merged pull request object.
     """
     if method not in ("merge", "squash", "rebase"):
-        raise ValidationError(f"method must be merge, squash, or rebase; got {method!r}")
+        raise ValidationError(
+            f"method must be merge, squash, or rebase; got {method!r}"
+        )
     args = ["pr", "merge", str(pr_number), "--repo", repo, f"--{method}"]
     if auto:
         args.append("--auto")
@@ -233,7 +242,7 @@ def pr_review(
     args = ["pr", "review", str(pr_number), "--repo", repo, f"--{action}"]
     if body:
         args.extend(["--body", body])
-    _, data, _ = run_gh(*args)
+    run_gh(*args)
     return {"status": "review submitted", "action": action, "pr_number": pr_number}
 
 
@@ -251,13 +260,19 @@ def pr_comment(repo: str, pr_number: int, body: str) -> dict[str, Any]:
     if not body:
         raise ValidationError("body is required")
     _, data, _ = run_gh(
-        "pr", "comment", str(pr_number), "--repo", repo, "--body", body,
+        "pr",
+        "comment",
+        str(pr_number),
+        "--repo",
+        repo,
+        "--body",
+        body,
         json_fields=["url"],
     )
     return data  # type: ignore[return-value]
 
 
-def register(server: Any) -> None:
+def register(server: FastMCP) -> None:
     """Register all pull request tools with the MCP server."""
 
     @server.tool()
@@ -279,7 +294,9 @@ def register(server: Any) -> None:
             assignee: Filter by assignee login.
             limit: Maximum number of PRs to return (default 30).
         """
-        return pr_list(repo, state=state, base=base, head=head, assignee=assignee, limit=limit)
+        return pr_list(
+            repo, state=state, base=base, head=head, assignee=assignee, limit=limit
+        )
 
     tool_pr_list.__name__ = "pr_list"
 
@@ -318,7 +335,16 @@ def register(server: Any) -> None:
             labels: Comma-separated label names to apply.
             assignees: Comma-separated GitHub logins to assign.
         """
-        return pr_create(repo, title, body=body, base=base, head=head, draft=draft, labels=labels, assignees=assignees)
+        return pr_create(
+            repo,
+            title,
+            body=body,
+            base=base,
+            head=head,
+            draft=draft,
+            labels=labels,
+            assignees=assignees,
+        )
 
     tool_pr_create.__name__ = "pr_create"
 
@@ -343,12 +369,22 @@ def register(server: Any) -> None:
             labels: Comma-separated labels to set.
             assignees: Comma-separated logins to set as assignees.
         """
-        return pr_edit(repo, pr_number, title=title, body=body, base=base, labels=labels, assignees=assignees)
+        return pr_edit(
+            repo,
+            pr_number,
+            title=title,
+            body=body,
+            base=base,
+            labels=labels,
+            assignees=assignees,
+        )
 
     tool_pr_edit.__name__ = "pr_edit"
 
     @server.tool()
-    def tool_pr_close(repo: str, pr_number: int, comment: str | None = None) -> dict[str, Any]:
+    def tool_pr_close(
+        repo: str, pr_number: int, comment: str | None = None
+    ) -> dict[str, Any]:
         """Close a pull request without merging.
 
         Args:
@@ -377,7 +413,9 @@ def register(server: Any) -> None:
             auto: Enable auto-merge (merge when requirements are met).
             delete_branch: Delete the head branch after merging.
         """
-        return pr_merge(repo, pr_number, method=method, auto=auto, delete_branch=delete_branch)
+        return pr_merge(
+            repo, pr_number, method=method, auto=auto, delete_branch=delete_branch
+        )
 
     tool_pr_merge.__name__ = "pr_merge"
 

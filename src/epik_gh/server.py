@@ -2,19 +2,19 @@
 
 Registers all tool modules and starts the server.
 """
-from __future__ import annotations
 
-import traceback
-from typing import Any
+from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
-from . import branches, issues, labels, prs, projects, relationships, repos, runs
-from .errors import AuthError, EpikGhError, GhError, NotFoundError, RateLimitError, ValidationError
+from . import branches, issues, labels, projects, prs, relationships, repos, runs
 
 mcp = FastMCP(
     "epik-gh",
-    description="GitHub MCP server wrapping the gh CLI. Provides read/write GitHub access via gh subcommands and the GitHub API.",
+    description=(
+        "GitHub MCP server wrapping the gh CLI. Provides read/write GitHub access"
+        " via gh subcommands and the GitHub API."
+    ),
 )
 
 

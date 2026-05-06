@@ -1,7 +1,10 @@
 """Label tools for epik-gh."""
+
 from __future__ import annotations
 
 from typing import Any
+
+from mcp.server.fastmcp import FastMCP
 
 from .errors import ValidationError
 from .runner import run_gh
@@ -17,7 +20,10 @@ def label_list(repo: str) -> list[dict[str, Any]]:
         List of label objects with name, color, and description.
     """
     _, data, _ = run_gh(
-        "label", "list", "--repo", repo,
+        "label",
+        "list",
+        "--repo",
+        repo,
         json_fields=["name", "color", "description"],
     )
     return data  # type: ignore[return-value]
@@ -68,11 +74,11 @@ def label_delete(repo: str, name: str, confirm: bool = True) -> dict[str, Any]:
     """
     if not confirm:
         raise ValidationError("confirm must be True to delete a label")
-    _, data, _ = run_gh("label", "delete", name, "--repo", repo, "--yes")
+    run_gh("label", "delete", name, "--repo", repo, "--yes")
     return {"deleted": name, "repo": repo}
 
 
-def register(server: Any) -> None:
+def register(server: FastMCP) -> None:
     """Register all label tools with the MCP server."""
 
     @server.tool()

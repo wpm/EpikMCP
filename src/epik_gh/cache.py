@@ -4,10 +4,10 @@ Stable IDs (project node ID, field IDs, option IDs) are cached after first
 lookup to avoid redundant GraphQL queries. Per-issue item IDs are looked up
 on demand and are NOT cached here because issues move between projects.
 """
+
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Any
 
@@ -35,9 +35,7 @@ def _project_key(project_owner: str, project_number: int) -> str:
     return f"{project_owner}/{project_number}"
 
 
-def get_project_ids(
-    project_owner: str, project_number: int
-) -> dict[str, Any] | None:
+def get_project_ids(project_owner: str, project_number: int) -> dict[str, Any] | None:
     """Return cached project IDs or None if not cached.
 
     The returned dict has the shape::

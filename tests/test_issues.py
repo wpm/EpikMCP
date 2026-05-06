@@ -1,8 +1,10 @@
 """Unit tests for issues.py."""
+
 from __future__ import annotations
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from epik_gh.errors import ValidationError
 from epik_gh.issues import (
