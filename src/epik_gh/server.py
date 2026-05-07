@@ -11,7 +11,7 @@ from . import branches, issues, labels, projects, prs, relationships, repos, run
 
 mcp = FastMCP(
     "epik-gh",
-    description=(
+    instructions=(
         "GitHub MCP server wrapping the gh CLI. Provides read/write GitHub access"
         " via gh subcommands and the GitHub API."
     ),

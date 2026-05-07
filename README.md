@@ -45,45 +45,25 @@ uv tool install .
 pip install git+https://github.com/YOUR_ORG/epik-gh.git
 ```
 
-## Configuring as an MCP server
+## Configuring as a CoWork MCP server
 
-### Claude Desktop
-
-Add the following to your `claude_desktop_config.json`:
+Add the following to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "epik-gh": {
-      "command": "epik-gh"
+      "command": "/Users/YOUR_USERNAME/.local/bin/epik-gh"
     }
   }
 }
 ```
 
-If you installed with `uv tool`, the full path is typically `~/.local/bin/epik-gh`. You can confirm it with `which epik-gh`.
-
-### Claude Code
+Use the full path to the binary. Confirm it with:
 
 ```bash
-claude mcp add epik-gh epik-gh
+which epik-gh
 ```
-
-Or with the full path:
-
-```bash
-claude mcp add epik-gh ~/.local/bin/epik-gh
-```
-
-### Other MCP clients
-
-Run the server over stdio:
-
-```bash
-epik-gh
-```
-
-Point your MCP client at that command. The server speaks the MCP stdio transport.
 
 ## Authentication
 
