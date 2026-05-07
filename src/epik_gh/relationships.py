@@ -15,28 +15,30 @@ from .errors import ValidationError
 from .runner import run_gh, split_repo
 
 
+def _gql(query: str, **variables: str | int) -> dict[str, Any]:
+    """Run a GraphQL query/mutation, passing variables as individual -F flags."""
+    args: list[str] = ["api", "graphql", "-f", f"query={query}"]
+    for key, value in variables.items():
+        # -F coerces integers; -f keeps strings
+        flag = "-F" if isinstance(value, int) else "-f"
+        args.extend([flag, f"{key}={value}"])
+    _, data, _ = run_gh(*args)
+    return json.loads(data)
+
+
 def _issue_node_id(repo: str, issue_number: int) -> str:
     """Look up the GraphQL node ID for an issue."""
     owner, name = split_repo(repo)
     query = """
-    query($owner: String!, $repo: String!, $number: Int!) {
-      repository(owner: $owner, name: $repo) {
+    query($owner: String!, $name: String!, $number: Int!) {
+      repository(owner: $owner, name: $name) {
         issue(number: $number) {
           id
         }
       }
     }
     """
-    variables = json.dumps({"owner": owner, "repo": name, "number": issue_number})
-    _, data, _ = run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={query}",
-        "-f",
-        f"variables={variables}",
-    )
-    result = json.loads(data)
+    result = _gql(query, owner=owner, name=name, number=issue_number)
     node_id = result.get("data", {}).get("repository", {}).get("issue", {}).get("id")
     if not node_id:
         raise ValidationError(f"Issue #{issue_number} not found in {repo}")
@@ -78,15 +80,7 @@ def issue_set_blocked_by(
       }
     }
     """
-    variables = json.dumps({"issueId": issue_id, "blockingId": blocking_id})
-    run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={mutation}",
-        "-f",
-        f"variables={variables}",
-    )
+    _gql(mutation, issueId=issue_id, blockingId=blocking_id)
     return {
         "issue": issue_number,
         "blocked_by": blocked_by_number,
@@ -126,15 +120,7 @@ def issue_remove_blocked_by(
       }
     }
     """
-    variables = json.dumps({"issueId": issue_id, "blockingId": blocking_id})
-    run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={mutation}",
-        "-f",
-        f"variables={variables}",
-    )
+    _gql(mutation, issueId=issue_id, blockingId=blocking_id)
     return {
         "issue": issue_number,
         "removed_blocked_by": blocked_by_number,
@@ -151,14 +137,13 @@ def issue_list_relationships(repo: str, issue_number: int) -> dict[str, Any]:
         issue_number: The issue number to query.
 
     Returns:
-        Dict with 'blocked_by', 'blocking', and 'sub_issues' lists.
+        Dict with 'tracked_in' and 'tracked_issues' lists.
     """
     owner, name = split_repo(repo)
     query = """
-    query($owner: String!, $repo: String!, $number: Int!) {
-      repository(owner: $owner, name: $repo) {
+    query($owner: String!, $name: String!, $number: Int!) {
+      repository(owner: $owner, name: $name) {
         issue(number: $number) {
-          id
           trackedInIssues(first: 25) {
             nodes { number title url }
           }
@@ -169,16 +154,7 @@ def issue_list_relationships(repo: str, issue_number: int) -> dict[str, Any]:
       }
     }
     """
-    variables = json.dumps({"owner": owner, "repo": name, "number": issue_number})
-    _, data, _ = run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={query}",
-        "-f",
-        f"variables={variables}",
-    )
-    result = json.loads(data)
+    result = _gql(query, owner=owner, name=name, number=issue_number)
     issue_data = result.get("data", {}).get("repository", {}).get("issue", {})
     return {
         "issue_number": issue_number,
@@ -211,15 +187,7 @@ def issue_add_sub_issue(
       }
     }
     """
-    variables = json.dumps({"parentId": parent_id, "subId": sub_id})
-    run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={mutation}",
-        "-f",
-        f"variables={variables}",
-    )
+    _gql(mutation, parentId=parent_id, subId=sub_id)
     return {
         "parent": parent_issue_number,
         "sub_issue": sub_issue_number,
@@ -250,15 +218,7 @@ def issue_remove_sub_issue(
       }
     }
     """
-    variables = json.dumps({"parentId": parent_id, "subId": sub_id})
-    run_gh(
-        "api",
-        "graphql",
-        "-f",
-        f"query={mutation}",
-        "-f",
-        f"variables={variables}",
-    )
+    _gql(mutation, parentId=parent_id, subId=sub_id)
     return {
         "parent": parent_issue_number,
         "removed_sub_issue": sub_issue_number,
