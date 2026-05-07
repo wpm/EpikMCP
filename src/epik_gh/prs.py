@@ -124,8 +124,9 @@ def pr_create(
         args.extend(["--label", labels])
     if assignees:
         args.extend(["--assignee", assignees])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "url"])
-    return data  # type: ignore[return-value]
+    # gh pr create doesn't support --json; it returns the PR URL on stdout
+    _, url, _ = run_gh(*args)
+    return {"url": url}
 
 
 def pr_edit(
@@ -162,8 +163,9 @@ def pr_edit(
         args.extend(["--label", labels])
     if assignees is not None:
         args.extend(["--add-assignee", assignees])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "url"])
-    return data  # type: ignore[return-value]
+    # gh pr edit doesn't support --json; it returns the PR URL on stdout
+    _, url, _ = run_gh(*args)
+    return {"url": url}
 
 
 def pr_close(repo: str, pr_number: int, comment: str | None = None) -> dict[str, Any]:
@@ -180,8 +182,9 @@ def pr_close(repo: str, pr_number: int, comment: str | None = None) -> dict[str,
     args = ["pr", "close", str(pr_number), "--repo", repo]
     if comment:
         args.extend(["--comment", comment])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "state", "url"])
-    return data  # type: ignore[return-value]
+    # gh pr close doesn't support --json
+    run_gh(*args)
+    return {"number": pr_number, "state": "closed"}
 
 
 def pr_merge(
@@ -212,8 +215,9 @@ def pr_merge(
         args.append("--auto")
     if delete_branch:
         args.append("--delete-branch")
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "state", "url"])
-    return data  # type: ignore[return-value]
+    # gh pr merge doesn't support --json
+    run_gh(*args)
+    return {"number": pr_number, "state": "merged"}
 
 
 def pr_review(
@@ -259,7 +263,8 @@ def pr_comment(repo: str, pr_number: int, body: str) -> dict[str, Any]:
     """
     if not body:
         raise ValidationError("body is required")
-    _, data, _ = run_gh(
+    # gh pr comment doesn't support --json; it returns the comment URL on stdout
+    _, url, _ = run_gh(
         "pr",
         "comment",
         str(pr_number),
@@ -267,9 +272,8 @@ def pr_comment(repo: str, pr_number: int, body: str) -> dict[str, Any]:
         repo,
         "--body",
         body,
-        json_fields=["url"],
     )
-    return data  # type: ignore[return-value]
+    return {"url": url}
 
 
 def register(server: FastMCP) -> None:

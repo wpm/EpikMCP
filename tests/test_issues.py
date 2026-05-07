@@ -104,10 +104,10 @@ def test_issue_create_passes_body():
 
 
 def test_issue_edit_happy_path():
-    updated = {"number": 1, "title": "Updated", "url": "https://..."}
-    with _mock_run(updated):
+    url = "https://github.com/owner/repo/issues/1"
+    with _mock_run(url):
         result = issue_edit(REPO, 1, title="Updated")
-    assert result == updated
+    assert result == {"url": url}
 
 
 def test_issue_edit_passes_title():
@@ -127,10 +127,9 @@ def test_issue_edit_no_optional_args_when_not_provided():
 
 
 def test_issue_close_happy_path():
-    closed = {"number": 3, "state": "closed"}
-    with _mock_run(closed):
+    with _mock_run(""):
         result = issue_close(REPO, 3)
-    assert result == closed
+    assert result == {"number": 3, "state": "closed"}
 
 
 def test_issue_close_passes_comment():
@@ -141,17 +140,16 @@ def test_issue_close_passes_comment():
 
 
 def test_issue_reopen_happy_path():
-    reopened = {"number": 3, "state": "open"}
-    with _mock_run(reopened):
+    with _mock_run(""):
         result = issue_reopen(REPO, 3)
-    assert result == reopened
+    assert result == {"number": 3, "state": "open"}
 
 
 def test_issue_comment_happy_path():
-    result_data = {"url": "https://github.com/.../comments/1"}
-    with _mock_run(result_data):
+    url = "https://github.com/owner/repo/issues/1#issuecomment-1"
+    with _mock_run(url):
         result = issue_comment(REPO, 1, "A comment")
-    assert result == result_data
+    assert result == {"url": url}
 
 
 def test_issue_comment_empty_body_raises_validation_error():

@@ -60,10 +60,10 @@ def test_pr_get_happy_path():
 
 
 def test_pr_create_happy_path():
-    created = {"number": 7, "title": "My PR", "url": "https://..."}
-    with _mock_run(created):
+    url = "https://github.com/owner/repo/pull/7"
+    with _mock_run(url):
         result = pr_create(REPO, "My PR")
-    assert result == created
+    assert result == {"url": url}
 
 
 def test_pr_create_empty_title_raises_validation_error():
@@ -86,38 +86,34 @@ def test_pr_create_no_draft_flag_when_false():
 
 
 def test_pr_edit_happy_path():
-    updated = {"number": 1, "title": "Updated PR"}
-    with _mock_run(updated):
+    url = "https://github.com/owner/repo/pull/1"
+    with _mock_run(url):
         result = pr_edit(REPO, 1, title="Updated PR")
-    assert result == updated
+    assert result == {"url": url}
 
 
 def test_pr_close_happy_path():
-    closed = {"number": 2, "state": "closed"}
-    with _mock_run(closed):
+    with _mock_run(""):
         result = pr_close(REPO, 2)
-    assert result == closed
+    assert result == {"number": 2, "state": "closed"}
 
 
 def test_pr_merge_merge_method():
-    merged = {"number": 5, "state": "merged"}
-    with _mock_run(merged):
+    with _mock_run(""):
         result = pr_merge(REPO, 5, method="merge")
-    assert result == merged
+    assert result == {"number": 5, "state": "merged"}
 
 
 def test_pr_merge_squash_method():
-    merged = {"number": 5, "state": "merged"}
-    with _mock_run(merged):
+    with _mock_run(""):
         result = pr_merge(REPO, 5, method="squash")
-    assert result == merged
+    assert result == {"number": 5, "state": "merged"}
 
 
 def test_pr_merge_rebase_method():
-    merged = {"number": 5, "state": "merged"}
-    with _mock_run(merged):
+    with _mock_run(""):
         result = pr_merge(REPO, 5, method="rebase")
-    assert result == merged
+    assert result == {"number": 5, "state": "merged"}
 
 
 def test_pr_merge_invalid_method_raises_validation_error():
@@ -167,10 +163,10 @@ def test_pr_review_comment_with_body_succeeds():
 
 
 def test_pr_comment_happy_path():
-    result_data = {"url": "https://github.com/.../comments/1"}
-    with _mock_run(result_data):
+    url = "https://github.com/owner/repo/pull/1#issuecomment-1"
+    with _mock_run(url):
         result = pr_comment(REPO, 1, "Nice work!")
-    assert result == result_data
+    assert result == {"url": url}
 
 
 def test_pr_comment_empty_body_raises_validation_error():

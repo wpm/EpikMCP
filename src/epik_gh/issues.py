@@ -146,8 +146,9 @@ def issue_edit(
         args.extend(["--add-assignee", assignees])
     if milestone is not None:
         args.extend(["--milestone", milestone])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "url"])
-    return data  # type: ignore[return-value]
+    # gh issue edit doesn't support --json; it returns the issue URL on stdout
+    _, url, _ = run_gh(*args)
+    return {"url": url}
 
 
 def issue_close(
@@ -166,8 +167,9 @@ def issue_close(
     args = ["issue", "close", str(issue_number), "--repo", repo]
     if comment:
         args.extend(["--comment", comment])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "state", "url"])
-    return data  # type: ignore[return-value]
+    # gh issue close doesn't support --json
+    run_gh(*args)
+    return {"number": issue_number, "state": "closed"}
 
 
 def issue_reopen(
@@ -186,8 +188,9 @@ def issue_reopen(
     args = ["issue", "reopen", str(issue_number), "--repo", repo]
     if comment:
         args.extend(["--comment", comment])
-    _, data, _ = run_gh(*args, json_fields=["number", "title", "state", "url"])
-    return data  # type: ignore[return-value]
+    # gh issue reopen doesn't support --json
+    run_gh(*args)
+    return {"number": issue_number, "state": "open"}
 
 
 def issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
@@ -203,7 +206,8 @@ def issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
     """
     if not body:
         raise ValidationError("body is required")
-    _, data, _ = run_gh(
+    # gh issue comment doesn't support --json; it returns the comment URL on stdout
+    _, url, _ = run_gh(
         "issue",
         "comment",
         str(issue_number),
@@ -211,9 +215,8 @@ def issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
         repo,
         "--body",
         body,
-        json_fields=["url"],
     )
-    return data  # type: ignore[return-value]
+    return {"url": url}
 
 
 def register(server: FastMCP) -> None:
