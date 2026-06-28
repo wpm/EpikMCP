@@ -116,7 +116,7 @@ def run_logs(
 def register(server: FastMCP) -> None:
     """Register all CI/run tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="run_list")
     def tool_run_list(
         repo: str,
         workflow: str | None = None,
@@ -138,9 +138,7 @@ def register(server: FastMCP) -> None:
             repo, workflow=workflow, branch=branch, status=status, limit=limit
         )
 
-    tool_run_list.__name__ = "run_list"
-
-    @server.tool()
+    @server.tool(name="run_get")
     def tool_run_get(repo: str, run_id: int) -> dict[str, Any]:
         """Get details of a single workflow run.
 
@@ -150,9 +148,7 @@ def register(server: FastMCP) -> None:
         """
         return run_get(repo, run_id)
 
-    tool_run_get.__name__ = "run_get"
-
-    @server.tool()
+    @server.tool(name="run_logs")
     def tool_run_logs(
         repo: str,
         run_id: int,
@@ -168,5 +164,3 @@ def register(server: FastMCP) -> None:
             failed_only: If True, only return logs from failed steps.
         """
         return run_logs(repo, run_id, job_id=job_id, failed_only=failed_only)
-
-    tool_run_logs.__name__ = "run_logs"

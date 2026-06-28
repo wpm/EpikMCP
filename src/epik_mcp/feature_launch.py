@@ -158,7 +158,7 @@ def feature_launch(
 def register(server: FastMCP) -> None:
     """Register the feature_launch tool with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="feature_launch")
     def tool_feature_launch(
         feature_issue_number: int,
         base_branch: str,
@@ -172,5 +172,3 @@ def register(server: FastMCP) -> None:
             target_branch: The branch the build targets.
         """
         return feature_launch(feature_issue_number, base_branch, target_branch)
-
-    tool_feature_launch.__name__ = "feature_launch"

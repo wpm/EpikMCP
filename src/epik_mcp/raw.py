@@ -39,7 +39,7 @@ def gh_raw(args: list[str]) -> dict[str, Any]:
 def register(server: FastMCP) -> None:
     """Register the raw passthrough tool with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="gh_raw")
     def tool_gh_raw(args: list[str]) -> dict[str, Any]:
         """Run an arbitrary gh command and return its result without raising.
 
@@ -51,5 +51,3 @@ def register(server: FastMCP) -> None:
             args: The list of arguments passed to gh, excluding the leading "gh".
         """
         return gh_raw(args)
-
-    tool_gh_raw.__name__ = "gh_raw"

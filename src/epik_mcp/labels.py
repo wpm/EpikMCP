@@ -81,7 +81,7 @@ def label_delete(repo: str, name: str, confirm: bool = True) -> dict[str, Any]:
 def register(server: FastMCP) -> None:
     """Register all label tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="label_list")
     def tool_label_list(repo: str) -> list[dict[str, Any]]:
         """List all labels in a repository.
 
@@ -90,9 +90,7 @@ def register(server: FastMCP) -> None:
         """
         return label_list(repo)
 
-    tool_label_list.__name__ = "label_list"
-
-    @server.tool()
+    @server.tool(name="label_create")
     def tool_label_create(
         repo: str,
         name: str,
@@ -111,9 +109,7 @@ def register(server: FastMCP) -> None:
         """
         return label_create(repo, name, color, description=description, force=force)
 
-    tool_label_create.__name__ = "label_create"
-
-    @server.tool()
+    @server.tool(name="label_delete")
     def tool_label_delete(repo: str, name: str, confirm: bool = True) -> dict[str, Any]:
         """Delete a label from a repository.
 
@@ -123,5 +119,3 @@ def register(server: FastMCP) -> None:
             confirm: Must be True to confirm deletion (safety guard).
         """
         return label_delete(repo, name, confirm=confirm)
-
-    tool_label_delete.__name__ = "label_delete"

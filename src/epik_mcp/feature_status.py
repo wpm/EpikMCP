@@ -227,7 +227,7 @@ def feature_status(
 def register(server: FastMCP) -> None:
     """Register the feature_status tool with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="feature_status")
     def tool_feature_status(
         repo: str,
         feature_issue_number: int,
@@ -246,5 +246,3 @@ def register(server: FastMCP) -> None:
             pr_limit: Maximum number of PRs to scan when matching linked PRs.
         """
         return feature_status(repo, feature_issue_number, pr_limit=pr_limit)
-
-    tool_feature_status.__name__ = "feature_status"

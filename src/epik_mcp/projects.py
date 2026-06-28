@@ -440,7 +440,7 @@ def project_invalidate_cache(
 def register(server: FastMCP) -> None:
     """Register all Projects V2 tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="project_set_status")
     def tool_project_set_status(
         project_owner: str,
         project_number: int,
@@ -464,9 +464,7 @@ def register(server: FastMCP) -> None:
             project_owner, project_number, repo, issue_number, status_name
         )
 
-    tool_project_set_status.__name__ = "project_set_status"
-
-    @server.tool()
+    @server.tool(name="project_get_item")
     def tool_project_get_item(
         project_owner: str,
         project_number: int,
@@ -483,9 +481,7 @@ def register(server: FastMCP) -> None:
         """
         return project_get_item(project_owner, project_number, repo, issue_number)
 
-    tool_project_get_item.__name__ = "project_get_item"
-
-    @server.tool()
+    @server.tool(name="project_list_items")
     def tool_project_list_items(
         project_owner: str,
         project_number: int,
@@ -502,9 +498,7 @@ def register(server: FastMCP) -> None:
             project_owner, project_number, status_filter=status_filter
         )
 
-    tool_project_list_items.__name__ = "project_list_items"
-
-    @server.tool()
+    @server.tool(name="project_invalidate_cache")
     def tool_project_invalidate_cache(
         project_owner: str,
         project_number: int | None = None,
@@ -519,5 +513,3 @@ def register(server: FastMCP) -> None:
                 If omitted, all cached data is cleared.
         """
         return project_invalidate_cache(project_owner, project_number)
-
-    tool_project_invalidate_cache.__name__ = "project_invalidate_cache"
