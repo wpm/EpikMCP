@@ -1,11 +1,11 @@
-"""Exception types for epik-gh."""
+"""Exception types for epik-mcp."""
 
 
-class EpikGhError(Exception):
-    """Base exception for all epik-gh errors."""
+class EpikMcpError(Exception):
+    """Base exception for all epik-mcp errors."""
 
 
-class AuthError(EpikGhError):
+class AuthError(EpikMcpError):
     """gh is not authenticated. Run `gh auth login` to fix."""
 
     _DEFAULT_MSG = "Not authenticated with GitHub. Run `gh auth login` to authenticate."
@@ -14,11 +14,11 @@ class AuthError(EpikGhError):
         super().__init__(message)
 
 
-class NotFoundError(EpikGhError):
+class NotFoundError(EpikMcpError):
     """The requested resource does not exist or the user lacks permission."""
 
 
-class RateLimitError(EpikGhError):
+class RateLimitError(EpikMcpError):
     """GitHub rate limit exceeded."""
 
     def __init__(
@@ -27,11 +27,11 @@ class RateLimitError(EpikGhError):
         super().__init__(message)
 
 
-class ValidationError(EpikGhError):
+class ValidationError(EpikMcpError):
     """Bad arguments were supplied before the call was made."""
 
 
-class GhError(EpikGhError):
+class GhError(EpikMcpError):
     """gh exited with a non-zero code that doesn't fit a more specific category."""
 
     def __init__(self, message: str, stderr: str = "", exit_code: int = 1) -> None:

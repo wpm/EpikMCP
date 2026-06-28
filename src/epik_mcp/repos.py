@@ -1,4 +1,4 @@
-"""Repository tools for epik-gh."""
+"""Repository tools for epik-mcp."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def repo_default_branch(repo: str) -> str:
 def register(server: FastMCP) -> None:
     """Register all repository tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="repo_get")
     def tool_repo_get(repo: str) -> dict[str, Any]:
         """Get metadata for a repository.
 
@@ -67,9 +67,7 @@ def register(server: FastMCP) -> None:
         """
         return repo_get(repo)
 
-    tool_repo_get.__name__ = "repo_get"
-
-    @server.tool()
+    @server.tool(name="repo_default_branch")
     def tool_repo_default_branch(repo: str) -> str:
         """Get the default branch name for a repository.
 
@@ -77,5 +75,3 @@ def register(server: FastMCP) -> None:
             repo: Repository in owner/name format.
         """
         return repo_default_branch(repo)
-
-    tool_repo_default_branch.__name__ = "repo_default_branch"

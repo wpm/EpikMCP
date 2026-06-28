@@ -1,7 +1,7 @@
 [project]
-name = "epik-gh"
+name = "epik-mcp"
 version = "0.1.1"
-description = "GitHub MCP server wrapping the gh CLI"
+description = "EpikMCP: the unified plan (GitHub via gh) and build (launch feature builds) MCP for Epik"
 readme = "README.md"
 authors = [
     { name = "W.P. McNeill", email = "billmcn@gmail.com" }
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-epik-gh = "epik_gh.server:main"
+epik-mcp = "epik_mcp.server:main"
 
 [dependency-groups]
 dev = [

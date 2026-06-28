@@ -1,4 +1,4 @@
-"""Issue tools for epik-gh."""
+"""Issue tools for epik-mcp."""
 
 from __future__ import annotations
 
@@ -222,7 +222,7 @@ def issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
 def register(server: FastMCP) -> None:
     """Register all issue tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="issue_list")
     def tool_issue_list(
         repo: str,
         state: str = "open",
@@ -243,9 +243,7 @@ def register(server: FastMCP) -> None:
             repo, state=state, labels=labels, assignee=assignee, limit=limit
         )
 
-    tool_issue_list.__name__ = "issue_list"
-
-    @server.tool()
+    @server.tool(name="issue_get")
     def tool_issue_get(repo: str, issue_number: int) -> dict[str, Any]:
         """Get a single issue by number.
 
@@ -255,9 +253,7 @@ def register(server: FastMCP) -> None:
         """
         return issue_get(repo, issue_number)
 
-    tool_issue_get.__name__ = "issue_get"
-
-    @server.tool()
+    @server.tool(name="issue_create")
     def tool_issue_create(
         repo: str,
         title: str,
@@ -285,9 +281,7 @@ def register(server: FastMCP) -> None:
             milestone=milestone,
         )
 
-    tool_issue_create.__name__ = "issue_create"
-
-    @server.tool()
+    @server.tool(name="issue_edit")
     def tool_issue_edit(
         repo: str,
         issue_number: int,
@@ -318,9 +312,7 @@ def register(server: FastMCP) -> None:
             milestone=milestone,
         )
 
-    tool_issue_edit.__name__ = "issue_edit"
-
-    @server.tool()
+    @server.tool(name="issue_close")
     def tool_issue_close(
         repo: str, issue_number: int, comment: str | None = None
     ) -> dict[str, Any]:
@@ -333,9 +325,7 @@ def register(server: FastMCP) -> None:
         """
         return issue_close(repo, issue_number, comment=comment)
 
-    tool_issue_close.__name__ = "issue_close"
-
-    @server.tool()
+    @server.tool(name="issue_reopen")
     def tool_issue_reopen(
         repo: str, issue_number: int, comment: str | None = None
     ) -> dict[str, Any]:
@@ -348,9 +338,7 @@ def register(server: FastMCP) -> None:
         """
         return issue_reopen(repo, issue_number, comment=comment)
 
-    tool_issue_reopen.__name__ = "issue_reopen"
-
-    @server.tool()
+    @server.tool(name="issue_comment")
     def tool_issue_comment(repo: str, issue_number: int, body: str) -> dict[str, Any]:
         """Post a comment on an issue.
 
@@ -360,5 +348,3 @@ def register(server: FastMCP) -> None:
             body: Comment body text (markdown).
         """
         return issue_comment(repo, issue_number, body)
-
-    tool_issue_comment.__name__ = "issue_comment"

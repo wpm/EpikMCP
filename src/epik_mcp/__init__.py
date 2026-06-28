@@ -1,19 +1,25 @@
-"""epik-gh: GitHub MCP server wrapping the gh CLI.
+"""EpikMCP: the single MCP for Epik.
 
-This package can be used as a library (import individual functions directly)
-or as an MCP server (run `epik-gh` or `python -m epik_gh.server`).
+EpikMCP has two internal modules: a plan module (GitHub access via the gh CLI)
+and a build module (launch feature builds via Anthropic). This package can be
+used as a library (import individual functions directly) or as an MCP server
+(run `epik-mcp` or `python -m epik_mcp.server`).
 """
 
-# Branches
-from .branches import branch_create, branch_delete, branch_list
 from .errors import (
     AuthError,
-    EpikGhError,
+    EpikMcpError,
     GhError,
     NotFoundError,
     RateLimitError,
     ValidationError,
 )
+
+# Feature launch (build module)
+from .feature_launch import feature_launch
+
+# Feature status aggregator
+from .feature_status import feature_status
 
 # Issues
 from .issues import (
@@ -38,16 +44,10 @@ from .projects import (
 )
 
 # Pull requests
-from .prs import (
-    pr_close,
-    pr_comment,
-    pr_create,
-    pr_edit,
-    pr_get,
-    pr_list,
-    pr_merge,
-    pr_review,
-)
+from .prs import pr_get, pr_list
+
+# Raw gh passthrough
+from .raw import gh_raw
 
 # Issue relationships (GraphQL)
 from .relationships import (
@@ -60,21 +60,21 @@ from .relationships import (
 
 # Repos
 from .repos import repo_default_branch, repo_get
-from .runner import run_gh, split_repo
+from .runner import run_gh, run_gh_raw, split_repo
 
 # CI / Actions
 from .runs import run_get, run_list, run_logs
 
 __all__ = [
     "AuthError",
-    "EpikGhError",
+    "EpikMcpError",
     "GhError",
     "NotFoundError",
     "RateLimitError",
     "ValidationError",
-    "branch_create",
-    "branch_delete",
-    "branch_list",
+    "feature_launch",
+    "feature_status",
+    "gh_raw",
     "issue_add_sub_issue",
     "issue_close",
     "issue_comment",
@@ -90,14 +90,8 @@ __all__ = [
     "label_create",
     "label_delete",
     "label_list",
-    "pr_close",
-    "pr_comment",
-    "pr_create",
-    "pr_edit",
     "pr_get",
     "pr_list",
-    "pr_merge",
-    "pr_review",
     "project_get_item",
     "project_invalidate_cache",
     "project_list_items",
@@ -106,6 +100,7 @@ __all__ = [
     "repo_get",
     "run_get",
     "run_gh",
+    "run_gh_raw",
     "run_list",
     "run_logs",
     "split_repo",
