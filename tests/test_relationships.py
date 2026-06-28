@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import ValidationError
-from epik_gh.relationships import (
+from epik_mcp.errors import ValidationError
+from epik_mcp.relationships import (
     issue_add_sub_issue,
     issue_list_relationships,
     issue_remove_blocked_by,
@@ -41,7 +41,7 @@ def test_issue_set_blocked_by_happy_path():
         # POST the dependency
         (True, "", ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_set_blocked_by(REPO, 1, 2)
 
     assert result["issue"] == 1
@@ -68,7 +68,7 @@ def test_issue_set_blocked_by_cross_repo():
         (True, {"id": 555}, ""),
         (True, "", ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_set_blocked_by(REPO, 1, 2, blocked_by_repo=other_repo)
 
     assert result["blocked_by_repo"] == other_repo
@@ -85,7 +85,7 @@ def test_issue_set_blocked_by_cross_repo():
 def test_issue_set_blocked_by_invalid_repo_format():
     with (
         pytest.raises(ValidationError, match="owner/name"),
-        patch("epik_gh.relationships.run_gh", return_value=(True, {"id": 1}, "")),
+        patch("epik_mcp.relationships.run_gh", return_value=(True, {"id": 1}, "")),
     ):
         issue_set_blocked_by("badrepo", 1, 2)
 
@@ -100,7 +100,7 @@ def test_issue_remove_blocked_by_happy_path():
         (True, {"id": 987654}, ""),
         (True, "", ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_remove_blocked_by(REPO, 1, 2)
 
     assert result["issue"] == 1
@@ -120,7 +120,7 @@ def test_issue_remove_blocked_by_cross_repo():
         (True, {"id": 42}, ""),
         (True, "", ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_remove_blocked_by(REPO, 1, 2, blocked_by_repo=other_repo)
 
     assert result["blocked_by_repo"] == other_repo
@@ -164,7 +164,7 @@ def test_issue_list_relationships_parent_and_sub_issues():
         }
     )
     with patch(
-        "epik_gh.relationships.run_gh", return_value=(True, gql_data, "")
+        "epik_mcp.relationships.run_gh", return_value=(True, gql_data, "")
     ) as mock:
         result = issue_list_relationships(REPO, 1)
 
@@ -192,7 +192,7 @@ def test_issue_list_relationships_no_parent():
             }
         }
     )
-    with patch("epik_gh.relationships.run_gh", return_value=(True, gql_data, "")):
+    with patch("epik_mcp.relationships.run_gh", return_value=(True, gql_data, "")):
         result = issue_list_relationships(REPO, 7)
 
     assert result["parent"] is None
@@ -220,7 +220,7 @@ def test_issue_add_sub_issue_happy_path():
         (True, _node_id_raw("sub_id"), ""),
         (True, mutation_response, ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_add_sub_issue(REPO, 10, 20)
 
     assert result["parent"] == 10
@@ -247,7 +247,7 @@ def test_issue_remove_sub_issue_happy_path():
         (True, _node_id_raw("sub_id"), ""),
         (True, mutation_response, ""),
     ]
-    with patch("epik_gh.relationships.run_gh", side_effect=side_effects) as mock:
+    with patch("epik_mcp.relationships.run_gh", side_effect=side_effects) as mock:
         result = issue_remove_sub_issue(REPO, 10, 20)
 
     assert result["parent"] == 10

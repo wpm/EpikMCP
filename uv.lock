@@ -226,7 +226,7 @@ wheels = [
 ]
 
 [[package]]
-name = "epik-gh"
+name = "epik-mcp"
 version = "0.1.1"
 source = { editable = "." }
 dependencies = [

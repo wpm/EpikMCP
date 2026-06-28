@@ -6,8 +6,8 @@ import json
 from typing import Any
 from unittest.mock import patch
 
-from epik_gh.errors import GhError
-from epik_gh.feature_status import feature_status
+from epik_mcp.errors import GhError
+from epik_mcp.feature_status import feature_status
 
 REPO = "owner/repo"
 
@@ -92,13 +92,13 @@ def test_feature_status_mixed_states():
 
     with (
         patch(
-            "epik_gh.feature_status.issue_list_relationships",
+            "epik_mcp.feature_status.issue_list_relationships",
             return_value=_rel(tracked),
         ),
-        patch("epik_gh.feature_status.issue_get", side_effect=fake_issue_get),
-        patch("epik_gh.feature_status.pr_list", side_effect=fake_pr_list),
-        patch("epik_gh.feature_status.run_list", side_effect=fake_run_list),
-        patch("epik_gh.feature_status.run_gh", side_effect=fake_run_gh),
+        patch("epik_mcp.feature_status.issue_get", side_effect=fake_issue_get),
+        patch("epik_mcp.feature_status.pr_list", side_effect=fake_pr_list),
+        patch("epik_mcp.feature_status.run_list", side_effect=fake_run_list),
+        patch("epik_mcp.feature_status.run_gh", side_effect=fake_run_gh),
     ):
         result = feature_status(REPO, 100)
 
@@ -136,10 +136,10 @@ def test_feature_status_degrades_when_relationships_fail():
     """If the relationship read raises, output is empty/flat and degraded=True."""
     with (
         patch(
-            "epik_gh.feature_status.issue_list_relationships",
+            "epik_mcp.feature_status.issue_list_relationships",
             side_effect=GhError("boom"),
         ),
-        patch("epik_gh.feature_status.pr_list", return_value=[]),
+        patch("epik_mcp.feature_status.pr_list", return_value=[]),
     ):
         result = feature_status(REPO, 100)
 
@@ -155,14 +155,14 @@ def test_feature_status_degrades_when_dependencies_fail():
 
     with (
         patch(
-            "epik_gh.feature_status.issue_list_relationships",
+            "epik_mcp.feature_status.issue_list_relationships",
             return_value=_rel(tracked),
         ),
-        patch("epik_gh.feature_status.issue_get", return_value={"state": "OPEN"}),
-        patch("epik_gh.feature_status.pr_list", return_value=[]),
-        patch("epik_gh.feature_status.run_list", return_value=[]),
+        patch("epik_mcp.feature_status.issue_get", return_value={"state": "OPEN"}),
+        patch("epik_mcp.feature_status.pr_list", return_value=[]),
+        patch("epik_mcp.feature_status.run_list", return_value=[]),
         patch(
-            "epik_gh.feature_status.run_gh", side_effect=GhError("no dependencies api")
+            "epik_mcp.feature_status.run_gh", side_effect=GhError("no dependencies api")
         ),
     ):
         result = feature_status(REPO, 100)

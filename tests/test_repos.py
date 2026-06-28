@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from epik_gh.repos import repo_default_branch, repo_get
+from epik_mcp.repos import repo_default_branch, repo_get
 
 REPO = "owner/repo"
 
 
 def _mock_run(return_value):
-    return patch("epik_gh.repos.run_gh", return_value=(True, return_value, ""))
+    return patch("epik_mcp.repos.run_gh", return_value=(True, return_value, ""))
 
 
 def test_repo_get_happy_path():
@@ -26,7 +26,7 @@ def test_repo_get_happy_path():
 
 
 def test_repo_get_passes_repo_arg():
-    with patch("epik_gh.repos.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.repos.run_gh", return_value=(True, {}, "")) as mock:
         repo_get(REPO)
     args = mock.call_args[0]
     assert REPO in args

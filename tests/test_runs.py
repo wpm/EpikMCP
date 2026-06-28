@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from epik_gh.runs import run_get, run_list, run_logs
+from epik_mcp.runs import run_get, run_list, run_logs
 
 REPO = "owner/repo"
 
 
 def _mock_run(return_value):
-    return patch("epik_gh.runs.run_gh", return_value=(True, return_value, ""))
+    return patch("epik_mcp.runs.run_gh", return_value=(True, return_value, ""))
 
 
 def test_run_list_happy_path():
@@ -28,7 +28,7 @@ def test_run_list_happy_path():
 
 
 def test_run_list_passes_workflow_filter():
-    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, [], "")) as mock:
         run_list(REPO, workflow="ci.yml")
     args = mock.call_args[0]
     assert "--workflow" in args
@@ -36,7 +36,7 @@ def test_run_list_passes_workflow_filter():
 
 
 def test_run_list_passes_branch_filter():
-    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, [], "")) as mock:
         run_list(REPO, branch="main")
     args = mock.call_args[0]
     assert "--branch" in args
@@ -44,7 +44,7 @@ def test_run_list_passes_branch_filter():
 
 
 def test_run_list_passes_status_filter():
-    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, [], "")) as mock:
         run_list(REPO, status="failure")
     args = mock.call_args[0]
     assert "--status" in args
@@ -52,7 +52,7 @@ def test_run_list_passes_status_filter():
 
 
 def test_run_list_passes_limit():
-    with patch("epik_gh.runs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, [], "")) as mock:
         run_list(REPO, limit=5)
     args = mock.call_args[0]
     assert "5" in args
@@ -66,7 +66,7 @@ def test_run_get_happy_path():
 
 
 def test_run_get_passes_run_id():
-    with patch("epik_gh.runs.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, {}, "")) as mock:
         run_get(REPO, 12345)
     args = mock.call_args[0]
     assert "12345" in args
@@ -80,7 +80,7 @@ def test_run_logs_full_logs():
 
 def test_run_logs_failed_only():
     with patch(
-        "epik_gh.runs.run_gh", return_value=(True, "Error in step 3", "")
+        "epik_mcp.runs.run_gh", return_value=(True, "Error in step 3", "")
     ) as mock:
         run_logs(REPO, 42, failed_only=True)
     args = mock.call_args[0]
@@ -88,7 +88,7 @@ def test_run_logs_failed_only():
 
 
 def test_run_logs_job_specific():
-    with patch("epik_gh.runs.run_gh", return_value=(True, "job output", "")) as mock:
+    with patch("epik_mcp.runs.run_gh", return_value=(True, "job output", "")) as mock:
         run_logs(REPO, 42, job_id=7)
     args = mock.call_args[0]
     assert "--job" in args

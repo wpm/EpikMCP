@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import EpikGhError, ValidationError
-from epik_gh.feature_launch import (
+from epik_mcp.errors import EpikMcpError, ValidationError
+from epik_mcp.feature_launch import (
     ANTHROPIC_VERSION,
     ROUTINE_BETA,
     ROUTINES_BASE_URL,
@@ -105,7 +105,7 @@ def test_feature_launch_http_error(monkeypatch: pytest.MonkeyPatch) -> None:
 
     with (
         patch("urllib.request.urlopen", side_effect=fake_urlopen),
-        pytest.raises(EpikGhError, match="403"),
+        pytest.raises(EpikMcpError, match="403"),
     ):
         feature_launch(7, "main", "target")
 
@@ -118,6 +118,6 @@ def test_feature_launch_missing_session_url(monkeypatch: pytest.MonkeyPatch) -> 
 
     with (
         patch("urllib.request.urlopen", side_effect=fake_urlopen),
-        pytest.raises(EpikGhError, match="claude_code_session_url"),
+        pytest.raises(EpikMcpError, match="claude_code_session_url"),
     ):
         feature_launch(7, "main", "target")

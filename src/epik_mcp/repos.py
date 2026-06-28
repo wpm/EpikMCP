@@ -1,4 +1,4 @@
-"""Repository tools for epik-gh."""
+"""Repository tools for epik-mcp."""
 
 from __future__ import annotations
 

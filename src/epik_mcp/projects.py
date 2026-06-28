@@ -1,9 +1,9 @@
-"""GitHub Projects V2 tools for epik-gh.
+"""GitHub Projects V2 tools for epik-mcp.
 
 Provides a high-level interface to GitHub Projects V2 via GraphQL.
 The lookup chain (project node ID → field ID → option ID) is hidden
 from callers — project_set_status(owner, number, issue_number, status)
-is a single call. Stable IDs are cached in ~/.epik-gh/cache.json.
+is a single call. Stable IDs are cached in ~/.epik-mcp/cache.json.
 """
 
 from __future__ import annotations

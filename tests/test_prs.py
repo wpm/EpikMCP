@@ -6,14 +6,14 @@ from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import ValidationError
-from epik_gh.prs import pr_get, pr_list
+from epik_mcp.errors import ValidationError
+from epik_mcp.prs import pr_get, pr_list
 
 REPO = "owner/repo"
 
 
 def _mock_run(return_value):
-    return patch("epik_gh.prs.run_gh", return_value=(True, return_value, ""))
+    return patch("epik_mcp.prs.run_gh", return_value=(True, return_value, ""))
 
 
 def test_pr_list_happy_path():
@@ -29,14 +29,14 @@ def test_pr_list_invalid_state_raises_error():
 
 
 def test_pr_list_passes_state():
-    with patch("epik_gh.prs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.prs.run_gh", return_value=(True, [], "")) as mock:
         pr_list(REPO, state="closed")
     args = mock.call_args[0]
     assert "closed" in args
 
 
 def test_pr_list_passes_base_filter():
-    with patch("epik_gh.prs.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.prs.run_gh", return_value=(True, [], "")) as mock:
         pr_list(REPO, base="main")
     args = mock.call_args[0]
     assert "--base" in args

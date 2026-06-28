@@ -1,12 +1,14 @@
-"""epik-gh: GitHub MCP server wrapping the gh CLI.
+"""EpikMCP: the single MCP for Epik.
 
-This package can be used as a library (import individual functions directly)
-or as an MCP server (run `epik-gh` or `python -m epik_gh.server`).
+EpikMCP has two internal modules: a plan module (GitHub access via the gh CLI)
+and a build module (launch feature builds via Anthropic). This package can be
+used as a library (import individual functions directly) or as an MCP server
+(run `epik-mcp` or `python -m epik_mcp.server`).
 """
 
 from .errors import (
     AuthError,
-    EpikGhError,
+    EpikMcpError,
     GhError,
     NotFoundError,
     RateLimitError,
@@ -65,7 +67,7 @@ from .runs import run_get, run_list, run_logs
 
 __all__ = [
     "AuthError",
-    "EpikGhError",
+    "EpikMcpError",
     "GhError",
     "NotFoundError",
     "RateLimitError",
