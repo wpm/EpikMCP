@@ -1,4 +1,4 @@
-"""Issue tools for epik-gh."""
+"""Issue tools for epik-mcp."""
 
 from __future__ import annotations
 

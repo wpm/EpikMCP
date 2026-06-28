@@ -1,4 +1,4 @@
-"""Projects V2 ID cache stored in ~/.epik-gh/cache.json.
+"""Projects V2 ID cache stored in ~/.epik-mcp/cache.json.
 
 Stable IDs (project node ID, field IDs, option IDs) are cached after first
 lookup to avoid redundant GraphQL queries. Per-issue item IDs are looked up
@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-_CACHE_DIR = Path.home() / ".epik-gh"
+_CACHE_DIR = Path.home() / ".epik-mcp"
 _CACHE_FILE = _CACHE_DIR / "cache.json"
 
 

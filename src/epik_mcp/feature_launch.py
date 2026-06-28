@@ -22,7 +22,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from .errors import EpikGhError, ValidationError
+from .errors import EpikMcpError, ValidationError
 
 #: Beta header value required by the routines fire endpoint.
 ROUTINE_BETA: str = "experimental-cc-routine-2026-04-01"
@@ -91,7 +91,7 @@ def feature_launch(
 
     Raises:
         ValidationError: If required config env vars are missing.
-        EpikGhError: If the request fails (non-2xx, connection error) or the
+        EpikMcpError: If the request fails (non-2xx, connection error) or the
             response is missing ``claude_code_session_url``.
     """
     routine_id, routine_token = _load_config()
@@ -125,25 +125,25 @@ def feature_launch(
             detail = ""
         if len(detail) > _MAX_ERROR_BODY:
             detail = detail[:_MAX_ERROR_BODY] + "... (truncated)"
-        raise EpikGhError(
+        raise EpikMcpError(
             f"Routine fire failed with HTTP {exc.code} for routine "
             f"{routine_id!r}: {detail}"
         ) from exc
     except urllib.error.URLError as exc:
-        raise EpikGhError(
+        raise EpikMcpError(
             f"Could not reach the routines API for routine {routine_id!r}: {exc.reason}"
         ) from exc
 
     try:
         data: dict[str, Any] = json.loads(raw.decode("utf-8"))
     except (ValueError, UnicodeDecodeError) as exc:
-        raise EpikGhError(
+        raise EpikMcpError(
             f"Routine fire returned a non-JSON response for routine {routine_id!r}."
         ) from exc
 
     session_url = data.get("claude_code_session_url")
     if not session_url:
-        raise EpikGhError(
+        raise EpikMcpError(
             "Routine fire response did not include 'claude_code_session_url' "
             f"for routine {routine_id!r}."
         )

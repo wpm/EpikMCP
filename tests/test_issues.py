@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import ValidationError
-from epik_gh.issues import (
+from epik_mcp.errors import ValidationError
+from epik_mcp.issues import (
     issue_close,
     issue_comment,
     issue_create,
@@ -21,7 +21,7 @@ REPO = "owner/repo"
 
 
 def _mock_run(return_value):
-    return patch("epik_gh.issues.run_gh", return_value=(True, return_value, ""))
+    return patch("epik_mcp.issues.run_gh", return_value=(True, return_value, ""))
 
 
 def test_issue_list_happy_path():
@@ -32,7 +32,7 @@ def test_issue_list_happy_path():
 
 
 def test_issue_list_passes_state_filter():
-    with patch("epik_gh.issues.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, [], "")) as mock:
         issue_list(REPO, state="closed")
     args = mock.call_args[0]
     assert "--state" in args
@@ -40,7 +40,7 @@ def test_issue_list_passes_state_filter():
 
 
 def test_issue_list_passes_label_filter():
-    with patch("epik_gh.issues.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, [], "")) as mock:
         issue_list(REPO, labels="bug,enhancement")
     args = mock.call_args[0]
     assert "--label" in args
@@ -53,7 +53,7 @@ def test_issue_list_invalid_state_raises_validation_error():
 
 
 def test_issue_list_passes_limit():
-    with patch("epik_gh.issues.run_gh", return_value=(True, [], "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, [], "")) as mock:
         issue_list(REPO, limit=10)
     args = mock.call_args[0]
     assert "10" in args
@@ -67,7 +67,7 @@ def test_issue_get_happy_path():
 
 
 def test_issue_get_passes_correct_args():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_get(REPO, 99)
     args = mock.call_args[0]
     assert "99" in args
@@ -88,7 +88,7 @@ def test_issue_create_empty_title_raises_validation_error():
 
 
 def test_issue_create_passes_labels():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_create(REPO, "Title", labels="bug")
     args = mock.call_args[0]
     assert "--label" in args
@@ -96,7 +96,7 @@ def test_issue_create_passes_labels():
 
 
 def test_issue_create_passes_body():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_create(REPO, "Title", body="Description text")
     args = mock.call_args[0]
     assert "--body" in args
@@ -111,7 +111,7 @@ def test_issue_edit_happy_path():
 
 
 def test_issue_edit_passes_title():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_edit(REPO, 1, title="New Title")
     args = mock.call_args[0]
     assert "--title" in args
@@ -119,7 +119,7 @@ def test_issue_edit_passes_title():
 
 
 def test_issue_edit_no_optional_args_when_not_provided():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_edit(REPO, 1)
     args = mock.call_args[0]
     assert "--title" not in args
@@ -133,7 +133,7 @@ def test_issue_close_happy_path():
 
 
 def test_issue_close_passes_comment():
-    with patch("epik_gh.issues.run_gh", return_value=(True, {}, "")) as mock:
+    with patch("epik_mcp.issues.run_gh", return_value=(True, {}, "")) as mock:
         issue_close(REPO, 3, comment="Closing this")
     args = mock.call_args[0]
     assert "--comment" in args

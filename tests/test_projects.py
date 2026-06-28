@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from epik_gh.errors import ValidationError
-from epik_gh.projects import (
+from epik_mcp.errors import ValidationError
+from epik_mcp.projects import (
     project_get_item,
     project_invalidate_cache,
     project_list_items,
@@ -37,10 +37,10 @@ FAKE_PROJECT_IDS = {
 
 def test_project_set_status_happy_path():
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._find_item_id", return_value="PVTI_item789"),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._find_item_id", return_value="PVTI_item789"),
         patch(
-            "epik_gh.projects._gql",
+            "epik_mcp.projects._gql",
             return_value={
                 "updateProjectV2ItemFieldValue": {
                     "projectV2Item": {"id": "PVTI_item789"}
@@ -59,10 +59,10 @@ def test_project_set_status_happy_path():
 
 def test_project_set_status_adds_item_when_not_in_project():
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._find_item_id", return_value=None),
-        patch("epik_gh.projects._add_item_to_project", return_value="PVTI_newitem"),
-        patch("epik_gh.projects._gql", return_value={}),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._find_item_id", return_value=None),
+        patch("epik_mcp.projects._add_item_to_project", return_value="PVTI_newitem"),
+        patch("epik_mcp.projects._gql", return_value={}),
     ):
         result = project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo")
 
@@ -71,7 +71,7 @@ def test_project_set_status_adds_item_when_not_in_project():
 
 def test_project_set_status_invalid_status_raises_validation_error():
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
         pytest.raises(ValidationError, match="not found"),
     ):
         project_set_status(
@@ -85,7 +85,7 @@ def test_project_set_status_missing_status_field_raises_validation_error():
         "fields": {"Priority": {"id": "fid", "options": {"High": "opt1"}}},
     }
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=ids_without_status),
+        patch("epik_mcp.projects._get_project_ids", return_value=ids_without_status),
         pytest.raises(ValidationError, match="Status"),
     ):
         project_set_status(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER, "Todo")
@@ -93,10 +93,10 @@ def test_project_set_status_missing_status_field_raises_validation_error():
 
 def test_project_get_item_found():
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._find_item_id", return_value="PVTI_item789"),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._find_item_id", return_value="PVTI_item789"),
         patch(
-            "epik_gh.projects._gql",
+            "epik_mcp.projects._gql",
             return_value={
                 "node": {
                     "id": "PVTI_item789",
@@ -115,8 +115,8 @@ def test_project_get_item_found():
 
 def test_project_get_item_not_found():
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._find_item_id", return_value=None),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._find_item_id", return_value=None),
     ):
         result = project_get_item(OWNER, PROJECT_NUMBER, REPO, ISSUE_NUMBER)
 
@@ -148,8 +148,8 @@ def test_project_list_items_happy_path():
         }
     }
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._gql", return_value=gql_response),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._gql", return_value=gql_response),
     ):
         result = project_list_items(OWNER, PROJECT_NUMBER)
 
@@ -193,8 +193,8 @@ def test_project_list_items_status_filter():
         }
     }
     with (
-        patch("epik_gh.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
-        patch("epik_gh.projects._gql", return_value=gql_response),
+        patch("epik_mcp.projects._get_project_ids", return_value=FAKE_PROJECT_IDS),
+        patch("epik_mcp.projects._gql", return_value=gql_response),
     ):
         result = project_list_items(OWNER, PROJECT_NUMBER, status_filter="Todo")
 
@@ -203,14 +203,14 @@ def test_project_list_items_status_filter():
 
 
 def test_project_invalidate_cache_specific_project():
-    with patch("epik_gh.projects._cache.invalidate_project") as mock_invalidate:
+    with patch("epik_mcp.projects._cache.invalidate_project") as mock_invalidate:
         result = project_invalidate_cache(OWNER, PROJECT_NUMBER)
     mock_invalidate.assert_called_once_with(OWNER, PROJECT_NUMBER)
     assert "invalidated" in result
 
 
 def test_project_invalidate_cache_all():
-    with patch("epik_gh.projects._cache.invalidate_all") as mock_invalidate:
+    with patch("epik_mcp.projects._cache.invalidate_all") as mock_invalidate:
         result = project_invalidate_cache(OWNER)
     mock_invalidate.assert_called_once()
     assert result["invalidated"] == "all"

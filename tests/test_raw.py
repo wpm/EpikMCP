@@ -5,8 +5,8 @@ from __future__ import annotations
 import subprocess
 from unittest.mock import MagicMock, patch
 
-from epik_gh.raw import gh_raw
-from epik_gh.runner import run_gh_raw
+from epik_mcp.raw import gh_raw
+from epik_mcp.runner import run_gh_raw
 
 
 def _make_result(stdout: str = "", stderr: str = "", returncode: int = 0) -> MagicMock:
@@ -18,7 +18,7 @@ def _make_result(stdout: str = "", stderr: str = "", returncode: int = 0) -> Mag
 
 
 def test_gh_raw_success():
-    with patch("epik_gh.raw.run_gh_raw", return_value=(0, "v1.0.0\tLatest", "")):
+    with patch("epik_mcp.raw.run_gh_raw", return_value=(0, "v1.0.0\tLatest", "")):
         result = gh_raw(["release", "list"])
     assert result == {
         "ok": True,
@@ -30,7 +30,7 @@ def test_gh_raw_success():
 
 def test_gh_raw_failure_does_not_raise():
     with patch(
-        "epik_gh.raw.run_gh_raw",
+        "epik_mcp.raw.run_gh_raw",
         return_value=(1, "", "could not find any releases"),
     ):
         result = gh_raw(["release", "list", "--repo", "owner/missing"])

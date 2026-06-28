@@ -1,4 +1,4 @@
-"""Issue relationship tools for epik-gh.
+"""Issue relationship tools for epik-mcp.
 
 These tools manage GitHub issue relationships:
 

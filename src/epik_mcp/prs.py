@@ -1,4 +1,4 @@
-"""Pull request tools for epik-gh."""
+"""Pull request tools for epik-mcp."""
 
 from __future__ import annotations
 

@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from epik_gh.errors import AuthError, GhError, NotFoundError, RateLimitError
-from epik_gh.runner import run_gh
+from epik_mcp.errors import AuthError, GhError, NotFoundError, RateLimitError
+from epik_mcp.runner import run_gh
 
 
 def _make_result(stdout: str = "", stderr: str = "", returncode: int = 0) -> MagicMock:

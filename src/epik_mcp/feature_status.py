@@ -1,4 +1,4 @@
-"""Feature status aggregator for epik-gh.
+"""Feature status aggregator for epik-mcp.
 
 Aggregates the status of a feature's sub-issues into a single structured
 payload the caller can render as a table. Assembled from the existing read
@@ -14,7 +14,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from .errors import EpikGhError
+from .errors import EpikMcpError
 from .issues import issue_get
 from .prs import pr_list
 from .relationships import issue_list_relationships
@@ -176,14 +176,14 @@ def feature_status(
     try:
         rel = issue_list_relationships(repo, feature_issue_number)
         sub_issues = rel.get("sub_issues", [])
-    except EpikGhError:
+    except EpikMcpError:
         degraded = True
         sub_issues = []
 
     # PR list is needed regardless of degraded state for linked-PR matching.
     try:
         prs = pr_list(repo, state="all", limit=pr_limit)
-    except EpikGhError:
+    except EpikMcpError:
         prs = []
 
     rows = [_issue_row(repo, sub, prs) for sub in sub_issues]
@@ -206,7 +206,7 @@ def feature_status(
             in_feature = [n for n in edges if n in sub_numbers and n != row["number"]]
             blocked_by_map[row["number"]] = in_feature
             row["blocked_by"] = in_feature
-    except EpikGhError:
+    except EpikMcpError:
         degraded = True
         for row in rows:
             row["blocked_by"] = []

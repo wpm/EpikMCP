@@ -1,4 +1,4 @@
-"""Raw gh passthrough tool for epik-gh.
+"""Raw gh passthrough tool for epik-mcp.
 
 Exposes a single ``gh_raw`` tool that runs an arbitrary gh command, covering
 operations not handled by the dedicated tools. Non-zero exits are surfaced as a

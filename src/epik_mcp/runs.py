@@ -1,4 +1,4 @@
-"""CI / GitHub Actions run tools for epik-gh."""
+"""CI / GitHub Actions run tools for epik-mcp."""
 
 from __future__ import annotations
 

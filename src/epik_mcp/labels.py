@@ -1,4 +1,4 @@
-"""Label tools for epik-gh."""
+"""Label tools for epik-mcp."""
 
 from __future__ import annotations
 
