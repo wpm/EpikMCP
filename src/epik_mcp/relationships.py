@@ -283,7 +283,7 @@ def issue_remove_sub_issue(
 def register(server: FastMCP) -> None:
     """Register all issue relationship tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="issue_set_blocked_by")
     def tool_issue_set_blocked_by(
         repo: str,
         issue_number: int,
@@ -303,9 +303,7 @@ def register(server: FastMCP) -> None:
             repo, issue_number, blocked_by_number, blocked_by_repo=blocked_by_repo
         )
 
-    tool_issue_set_blocked_by.__name__ = "issue_set_blocked_by"
-
-    @server.tool()
+    @server.tool(name="issue_remove_blocked_by")
     def tool_issue_remove_blocked_by(
         repo: str,
         issue_number: int,
@@ -325,9 +323,7 @@ def register(server: FastMCP) -> None:
             repo, issue_number, blocked_by_number, blocked_by_repo=blocked_by_repo
         )
 
-    tool_issue_remove_blocked_by.__name__ = "issue_remove_blocked_by"
-
-    @server.tool()
+    @server.tool(name="issue_list_relationships")
     def tool_issue_list_relationships(repo: str, issue_number: int) -> dict[str, Any]:
         """List the sub-issue hierarchy for an issue (parent and sub-issues).
 
@@ -337,9 +333,7 @@ def register(server: FastMCP) -> None:
         """
         return issue_list_relationships(repo, issue_number)
 
-    tool_issue_list_relationships.__name__ = "issue_list_relationships"
-
-    @server.tool()
+    @server.tool(name="issue_add_sub_issue")
     def tool_issue_add_sub_issue(
         repo: str, parent_issue_number: int, sub_issue_number: int
     ) -> dict[str, Any]:
@@ -352,9 +346,7 @@ def register(server: FastMCP) -> None:
         """
         return issue_add_sub_issue(repo, parent_issue_number, sub_issue_number)
 
-    tool_issue_add_sub_issue.__name__ = "issue_add_sub_issue"
-
-    @server.tool()
+    @server.tool(name="issue_remove_sub_issue")
     def tool_issue_remove_sub_issue(
         repo: str, parent_issue_number: int, sub_issue_number: int
     ) -> dict[str, Any]:
@@ -366,5 +358,3 @@ def register(server: FastMCP) -> None:
             sub_issue_number: The sub-issue number to detach.
         """
         return issue_remove_sub_issue(repo, parent_issue_number, sub_issue_number)
-
-    tool_issue_remove_sub_issue.__name__ = "issue_remove_sub_issue"

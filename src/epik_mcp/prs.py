@@ -89,7 +89,7 @@ def pr_get(repo: str, pr_number: int) -> dict[str, Any]:
 def register(server: FastMCP) -> None:
     """Register all pull request tools with the MCP server."""
 
-    @server.tool()
+    @server.tool(name="pr_list")
     def tool_pr_list(
         repo: str,
         state: str = "open",
@@ -112,9 +112,7 @@ def register(server: FastMCP) -> None:
             repo, state=state, base=base, head=head, assignee=assignee, limit=limit
         )
 
-    tool_pr_list.__name__ = "pr_list"
-
-    @server.tool()
+    @server.tool(name="pr_get")
     def tool_pr_get(repo: str, pr_number: int) -> dict[str, Any]:
         """Get a single pull request by number.
 
@@ -123,5 +121,3 @@ def register(server: FastMCP) -> None:
             pr_number: The pull request number.
         """
         return pr_get(repo, pr_number)
-
-    tool_pr_get.__name__ = "pr_get"
